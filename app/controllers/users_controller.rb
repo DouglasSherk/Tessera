@@ -7,7 +7,10 @@ class UsersController < ApplicationController
     auth = PolygonAuth::PolygonGenerator.new
     vertices = auth.generatePolygon
 
-    puts(vertices)
+    vertices.each do |vertex|
+      puts(vertex.x())
+      puts(vertex.y())
+    end
 
     respond_to do |format|
       format.html # index.html.erb
