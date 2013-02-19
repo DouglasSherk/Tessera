@@ -1,11 +1,27 @@
 class UsersController < ApplicationController
+  include PolygonAuth
+
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    auth = PolygonAuth::PolygonGenerator.new
+    vertices = auth.generatePolygon
+
+    puts(vertices)
 
     respond_to do |format|
       format.html # index.html.erb
+      format.json { head :no_content }
+    end
+  end
+
+  # GET /users/list
+  # GET /users/list.json
+  def list
+    @users = User.all
+
+    respond_to do |format|
+      format.html # list.html.erb
       format.json { render json: @users }
     end
   end
