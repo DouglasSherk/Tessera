@@ -2,7 +2,8 @@
   <%= javascript_tag do %>
     $(document).ready(function() {
       $("#polygon").drawPolygon(
-        $.parseJSON('<%= raw @vertices.to_json %>')
+        $.parseJSON('<%= raw @vertices.to_json %>'),
+        <%= raw @firstVertex %>
       );
     });
   <% end %>

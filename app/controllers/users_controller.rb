@@ -39,6 +39,7 @@ class UsersController < ApplicationController
 
     auth = PolygonAuth::PolygonGenerator.new
     @vertices = auth.generatePolygon
+    @firstVertex = auth.generateFirstVertex(@vertices)
 
     respond_to do |format|
       format.html # new.html.erb

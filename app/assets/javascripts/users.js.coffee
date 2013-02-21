@@ -4,7 +4,7 @@
 
 $ = jQuery
 
-$.fn.drawPolygon = (vertices) ->
+$.fn.drawPolygon = (vertices, firstVertex) ->
   canvas = null
   $("canvas", this).each -> canvas = this
   context = canvas.getContext('2d')
@@ -12,21 +12,37 @@ $.fn.drawPolygon = (vertices) ->
   width = canvas.width
   height = canvas.height
 
-  # Begin path drawing code.
-  context.beginPath()
+  randomColor = ->
+    colors = ['red', 'green', 'blue']
+    colors[Math.floor(Math.random() * colors.length)]
+
+  vertexToCanvasCoords = (vertex) ->
+    x: width / 2 + vertex.x * width / 2,
+    y: height / 2 + vertex.y * height / 2
 
   shrinkFactor = 0.5
 
+  # Begin path for line.
+  context.beginPath()
+
   for vertex in vertices
     do (vertex) ->
-      context.lineTo(
-        width / 2 + vertex.x * width / 2,
-        height / 2 + vertex.y * height / 2
-      )
+      vertexInCanvasCoords = vertexToCanvasCoords(vertex)
+      context.lineTo(vertexInCanvasCoords.x, vertexInCanvasCoords.y)
+
+  context.strokeStyle = randomColor()
+  context.stroke()
 
   context.closePath()
+  # End path for polygon.
 
-  colors = ['red', 'green', 'blue']
-  context.strokeStyle = colors[Math.floor(Math.random()*colors.length)]
+  # Begin path for first vertex marker.
+  context.beginPath()
+  firstVertex = vertexToCanvasCoords(vertices[firstVertex])
+  context.arc(firstVertex.x, firstVertex.y, 10.0, 0, 2*Math.PI, false)
+  context.fillStyle = randomColor()
+  context.strokeStyle = randomColor()
+  context.fill()
   context.stroke()
-  # End path drawing code.
+  context.closePath()
+  # End path for first vertex marker.
