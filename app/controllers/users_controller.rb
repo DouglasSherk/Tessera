@@ -41,6 +41,9 @@ class UsersController < ApplicationController
     @vertices = auth.generatePolygon
     @firstVertex = auth.generateFirstVertex(@vertices)
 
+    session[:vertices] = @vertices
+    session[:firstVertex] = @firstVertex
+
     respond_to do |format|
       format.html # new.html.erb
       format.json { render json: @user }
