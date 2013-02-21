@@ -25,5 +25,8 @@ $.fn.drawPolygon = (vertices) ->
       )
 
   context.closePath()
+
+  colors = ['red', 'green', 'blue']
+  context.strokeStyle = colors[Math.floor(Math.random()*colors.length)]
   context.stroke()
   # End path drawing code.
