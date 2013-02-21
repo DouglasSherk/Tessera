@@ -15,9 +15,14 @@ $.fn.drawPolygon = (vertices) ->
   # Begin path drawing code.
   context.beginPath()
 
+  shrinkFactor = 0.5
+
   for vertex in vertices
     do (vertex) ->
-      context.lineTo(width / 2 + vertex.x * width / 2, height / 2 + vertex.y * height / 2)
+      context.lineTo(
+        width / 2 + vertex.x * width / 2,
+        height / 2 + vertex.y * height / 2
+      )
 
   context.closePath()
   context.stroke()
