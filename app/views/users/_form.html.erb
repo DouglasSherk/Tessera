@@ -1,4 +1,12 @@
 <%= form_for(@user) do |f| %>
+  <%= javascript_tag do %>
+    $(document).ready(function() {
+      $("#polygon").drawPolygon(
+        $.parseJSON('<%= raw @vertices.to_json %>')
+      );
+    });
+  <% end %>
+
   <% if @user.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
@@ -15,10 +23,13 @@
     <%= f.label :name %><br />
     <%= f.text_field :name %>
   </div>
-  <div class="field">
-    <%= f.label :password %><br />
-    <%= f.text_field :password %>
+
+  <div id="polygon">
+    <canvas id="canvas" width="300" height="300">
+      <p>Please get a modern browser.</p>
+    </canvas>
   </div>
+
   <div class="actions">
     <%= f.submit %>
   </div>

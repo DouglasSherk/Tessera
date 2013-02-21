@@ -4,14 +4,6 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
-    auth = PolygonAuth::PolygonGenerator.new
-    vertices = auth.generatePolygon
-
-    vertices.each do |vertex|
-      puts(vertex.x())
-      puts(vertex.y())
-    end
-
     respond_to do |format|
       format.html # index.html.erb
       format.json { head :no_content }
@@ -44,6 +36,9 @@ class UsersController < ApplicationController
   # GET /users/new.json
   def new
     @user = User.new
+
+    auth = PolygonAuth::PolygonGenerator.new
+    @vertices = auth.generatePolygon
 
     respond_to do |format|
       format.html # new.html.erb
