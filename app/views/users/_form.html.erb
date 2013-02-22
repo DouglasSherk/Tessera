@@ -20,11 +20,14 @@
     </div>
   <% end %>
 
+  <hr />
+
   <div class="field">
     <%= f.label :name %><br />
     <%= f.text_field :name %>
   </div>
 
+  <p>Select some pattern based on this shape to act as your password:</p>
   <div id="polygon">
     <canvas id="canvas" width="300" height="300">
       <p>Please get a modern browser.</p>
@@ -34,4 +37,6 @@
   <div class="actions">
     <%= f.submit %>
   </div>
+
+  <hr />
 <% end %>
