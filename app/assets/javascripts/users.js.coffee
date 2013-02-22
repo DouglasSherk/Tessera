@@ -4,20 +4,28 @@
 
 $ = jQuery
 
-a = 0
+getCanvas = (container) ->
+  canvas = null
+  $("canvas", container).each -> canvas = this
+  context = canvas.getContext('2d')
+  return [canvas, context]
 
 $.fn.eventMouseMove = (event) ->
-  console.log(a++)
+  return
 
 $.fn.storeVerticesAndDraw = (vertices, firstVertex) ->
   $.data(this, 'vertices', vertices)
   $.data(this, 'firstVertex', firstVertex)
 
-  canvas = null
-  $("canvas", this).each -> canvas = this
-  context = canvas.getContext('2d')
-
   this.mousemove(this.eventMouseMove)
+
+  this.drawPolygon(-1)
+
+$.fn.drawPolygon = (activeVertex) ->
+  vertices = $.data(this, 'vertices')
+  firstVertex = $.data(this, 'firstVertex')
+
+  [canvas, context] = getCanvas(this)
 
   width = canvas.width
   height = canvas.height
