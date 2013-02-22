@@ -1,7 +1,7 @@
 <%= form_for(@user) do |f| %>
   <%= javascript_tag do %>
     $(document).ready(function() {
-      $("#polygon").drawPolygon(
+      $("#polygon").storeVerticesAndDraw(
         $.parseJSON('<%= raw @vertices.to_json %>'),
         <%= raw @firstVertex %>
       );
@@ -28,11 +28,11 @@
   </div>
 
   <p>Select some pattern based on this shape to act as your password:</p>
-  <div id="polygon">
+  <span id="polygon">
     <canvas id="canvas" width="300" height="300">
       <p>Please get a modern browser.</p>
     </canvas>
-  </div>
+  </span>
 
   <div class="actions">
     <%= f.submit %>

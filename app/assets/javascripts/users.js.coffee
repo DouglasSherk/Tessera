@@ -4,10 +4,20 @@
 
 $ = jQuery
 
-$.fn.drawPolygon = (vertices, firstVertex) ->
+a = 0
+
+$.fn.eventMouseMove = (event) ->
+  console.log(a++)
+
+$.fn.storeVerticesAndDraw = (vertices, firstVertex) ->
+  $.data(this, 'vertices', vertices)
+  $.data(this, 'firstVertex', firstVertex)
+
   canvas = null
   $("canvas", this).each -> canvas = this
   context = canvas.getContext('2d')
+
+  this.mousemove(this.eventMouseMove)
 
   width = canvas.width
   height = canvas.height
