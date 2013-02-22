@@ -18,14 +18,13 @@ vertexToCanvasCoords = (canvas, vertex) ->
     y: height / 2 + vertex.y * height / 2
   }
 
-$.fn.eventMouseMove = (event) ->
-  offset = $(this).offset()
-  [canvas, context] = getCanvas(this)
+findClosestVertexToMouse = (event, target) ->
+  offset = $(target).offset()
+  [canvas, context] = getCanvas(target)
 
-  target = this
+  vertices = $.data(target, 'vertices')
 
-  vertices = $.data(this, 'vertices')
-  firstVertex = $.data(this, 'firstVertex')
+  closest = null
 
   for key, vertex of vertices
     do (key, vertex) ->
@@ -35,14 +34,34 @@ $.fn.eventMouseMove = (event) ->
       distance = Math.sqrt(Math.pow(vertexInCanvasCoords.x - mouseX, 2.0) +
                            Math.pow(vertexInCanvasCoords.y - mouseY, 2.0))
       if distance < 40.0
-        $(target).drawPolygon(key)
+        closest = key
+
+  return closest
+
+$.fn.eventMouseMove = (event) ->
+  vertex = findClosestVertexToMouse(event, this)
+  $(this).drawPolygon(vertex)
+
+$.fn.eventMouseClick = (event) ->
+  vertex = findClosestVertexToMouse(event, this)
+  selectedVertices = $.data(this, 'selectedVertices')
+  indexOfCurrentVertex = selectedVertices.indexOf(parseInt(vertex))
+
+  if indexOfCurrentVertex != -1 then selectedVertices.splice(indexOfCurrentVertex, 1)
+  else selectedVertices.push(parseInt(vertex))
+
+  $.data(this, 'selectedVertices', selectedVertices)
+
+  $(this).drawPolygon(vertex)
 
 $.fn.storeVerticesAndDraw = (vertices, firstVertex) ->
   span = this.get(0)
   $.data(span, 'vertices', vertices)
   $.data(span, 'firstVertex', firstVertex)
+  $.data(span, 'selectedVertices', [])
 
   this.mousemove(this.eventMouseMove)
+  this.click(this.eventMouseClick)
 
   this.drawPolygon(-1)
 
@@ -50,6 +69,7 @@ $.fn.drawPolygon = (activeVertex) ->
   span = this.get(0)
   vertices = $.data(span, 'vertices')
   firstVertex = $.data(span, 'firstVertex')
+  selectedVertices = $.data(span, 'selectedVertices')
 
   [canvas, context] = getCanvas(this)
 
@@ -80,15 +100,21 @@ $.fn.drawPolygon = (activeVertex) ->
   for key, vertex of vertices
     do (key, vertex) ->
       if key > 0
-        color = if parseInt(key) is firstVertex then '128, 128, 255' else '128, 255, 128'
-        alpha = if parseInt(key) is parseInt(activeVertex) then '1.00' else '0.25'
+        key = parseInt(key)
+        color = if key is firstVertex then '128, 128, 255' else '128, 255, 128'
+        alpha = if key is parseInt(activeVertex) then '1.00' else '0.25'
 
         vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex)
 
         context.beginPath()
         context.arc(vertexInCanvasCoords.x, vertexInCanvasCoords.y, 10.0, 0, 2*Math.PI, false)
         context.lineWidth = 3
-        context.fillStyle = 'rgba(' + color + ', ' + alpha + ')'
+
+        if selectedVertices.indexOf(key) != -1
+          context.fillStyle = 'white'
+        else
+          context.fillStyle = 'rgba(' + color + ', ' + alpha + ')'
+
         context.strokeStyle = 'rgba(' + color + ', 1.0)'
         context.fill()
         context.stroke()
