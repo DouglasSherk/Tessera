@@ -10,38 +10,64 @@ getCanvas = (container) ->
   context = canvas.getContext('2d')
   return [canvas, context]
 
+vertexToCanvasCoords = (canvas, vertex) ->
+  width = canvas.width
+  height = canvas.height
+  return {
+    x: width / 2 + vertex.x * width / 2,
+    y: height / 2 + vertex.y * height / 2
+  }
+
 $.fn.eventMouseMove = (event) ->
-  return
+  offset = $(this).offset()
+  [canvas, context] = getCanvas(this)
+
+  target = this
+
+  vertices = $.data(this, 'vertices')
+  firstVertex = $.data(this, 'firstVertex')
+
+  for key, vertex of vertices
+    do (key, vertex) ->
+      vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex)
+      mouseX = event.pageX - offset.left
+      mouseY = event.pageY - offset.top
+      distance = Math.sqrt(Math.pow(vertexInCanvasCoords.x - mouseX, 2.0) +
+                           Math.pow(vertexInCanvasCoords.y - mouseY, 2.0))
+      if distance < 40.0
+        $(target).drawPolygon(key)
 
 $.fn.storeVerticesAndDraw = (vertices, firstVertex) ->
-  $.data(this, 'vertices', vertices)
-  $.data(this, 'firstVertex', firstVertex)
+  span = this.get(0)
+  $.data(span, 'vertices', vertices)
+  $.data(span, 'firstVertex', firstVertex)
 
   this.mousemove(this.eventMouseMove)
 
   this.drawPolygon(-1)
 
 $.fn.drawPolygon = (activeVertex) ->
-  vertices = $.data(this, 'vertices')
-  firstVertex = $.data(this, 'firstVertex')
+  span = this.get(0)
+  vertices = $.data(span, 'vertices')
+  firstVertex = $.data(span, 'firstVertex')
 
   [canvas, context] = getCanvas(this)
 
   width = canvas.width
   height = canvas.height
 
-  vertexToCanvasCoords = (vertex) ->
-    x: width / 2 + vertex.x * width / 2,
-    y: height / 2 + vertex.y * height / 2
+  context.clearRect(0, 0, width, height)
 
   shrinkFactor = 0.5
 
   # Begin path for line.
   context.beginPath()
 
+  context.lineWidth = 1
+
   for vertex in vertices
     do (vertex) ->
-      vertexInCanvasCoords = vertexToCanvasCoords(vertex)
+      vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex)
       context.lineTo(vertexInCanvasCoords.x, vertexInCanvasCoords.y)
 
   context.strokeStyle = 'red'
@@ -55,9 +81,9 @@ $.fn.drawPolygon = (activeVertex) ->
     do (key, vertex) ->
       if key > 0
         color = if parseInt(key) is firstVertex then '128, 128, 255' else '128, 255, 128'
-        alpha = '0.25'
+        alpha = if parseInt(key) is parseInt(activeVertex) then '1.00' else '0.25'
 
-        vertexInCanvasCoords = vertexToCanvasCoords(vertex)
+        vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex)
 
         context.beginPath()
         context.arc(vertexInCanvasCoords.x, vertexInCanvasCoords.y, 10.0, 0, 2*Math.PI, false)
