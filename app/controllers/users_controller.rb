@@ -21,6 +21,19 @@ class UsersController < ApplicationController
     end
   end
 
+  # GET /users/refresh
+  # GET /users/refresh.json
+  def refresh
+    auth = PolygonAuth::PolygonGenerator.new
+    session[:vertices] = auth.generatePolygon
+    session[:firstVertex] = auth.generateFirstVertex(session[:vertices])
+
+    respond_to do |format|
+      format.html { redirect_to :action => "new" }
+      format.json { head :no_content }
+    end
+  end
+
   # GET /users/1
   # GET /users/1.json
   def show
@@ -39,7 +52,7 @@ class UsersController < ApplicationController
 
     auth = PolygonAuth::PolygonGenerator.new
     session[:vertices] ||= auth.generatePolygon
-    session[:firstVertex] ||= auth.generateFirstVertex(@vertices)
+    session[:firstVertex] ||= auth.generateFirstVertex(session[:vertices])
 
     @vertices = session[:vertices]
     @firstVertex = session[:firstVertex]

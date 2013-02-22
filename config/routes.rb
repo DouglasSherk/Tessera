@@ -1,5 +1,9 @@
 Tessera::Application.routes.draw do
-  resources :users
+  resources :users do
+    collection do
+      get 'refresh'
+    end
+  end
 
 
   get "home/index"
