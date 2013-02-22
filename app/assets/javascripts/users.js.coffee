@@ -10,9 +10,14 @@ getCanvas = (container) ->
   context = canvas.getContext('2d')
   return [canvas, context]
 
-vertexToCanvasCoords = (canvas, vertex) ->
-  width = canvas.width
-  height = canvas.height
+getCanvasStretchFactor = (canvas) ->
+  cssWidth = $(canvas).width()
+  canvasWidth = canvas.width
+  return cssWidth / canvasWidth
+
+vertexToCanvasCoords = (canvas, vertex, coordSpace) ->
+  width = if coordSpace == 'canvas' then canvas.width else $(canvas).width()
+  height = if coordSpace == 'canvas' then canvas.height else $(canvas).height()
   return {
     x: width / 2 + vertex.x * width / 2,
     y: height / 2 + vertex.y * height / 2
@@ -28,12 +33,12 @@ findClosestVertexToMouse = (event, target) ->
 
   for key, vertex of vertices
     do (key, vertex) ->
-      vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex)
+      vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex, 'css')
       mouseX = event.pageX - offset.left
       mouseY = event.pageY - offset.top
       distance = Math.sqrt(Math.pow(vertexInCanvasCoords.x - mouseX, 2.0) +
                            Math.pow(vertexInCanvasCoords.y - mouseY, 2.0))
-      if distance < 40.0
+      if distance < getCanvasStretchFactor(canvas) * 25.0
         closest = key
 
   return closest
@@ -87,7 +92,7 @@ $.fn.drawPolygon = (activeVertex) ->
 
   for vertex in vertices
     do (vertex) ->
-      vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex)
+      vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex, 'canvas')
       context.lineTo(vertexInCanvasCoords.x, vertexInCanvasCoords.y)
 
   context.strokeStyle = 'red'
@@ -104,7 +109,7 @@ $.fn.drawPolygon = (activeVertex) ->
         color = if key is firstVertex then '128, 128, 255' else '128, 255, 128'
         alpha = if key is parseInt(activeVertex) then '1.00' else '0.25'
 
-        vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex)
+        vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex, 'canvas')
 
         context.beginPath()
         context.arc(vertexInCanvasCoords.x, vertexInCanvasCoords.y, 10.0, 0, 2*Math.PI, false)
