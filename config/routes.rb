@@ -1,7 +1,7 @@
 Tessera::Application.routes.draw do
   resources :users do
     collection do
-      get 'refresh'
+      get 'refresh/:security', :action => 'refresh'
     end
   end
 

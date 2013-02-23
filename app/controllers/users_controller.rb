@@ -25,7 +25,8 @@ class UsersController < ApplicationController
   # GET /users/refresh.json
   def refresh
     auth = PolygonAuth::PolygonGenerator.new
-    session[:vertices] = auth.generatePolygon
+    session[:security] = params[:security].to_i
+    session[:vertices] = auth.generatePolygon(session[:security])
     session[:firstVertex] = auth.generateFirstVertex(session[:vertices])
 
     respond_to do |format|
