@@ -25,6 +25,7 @@
   <div class="field">
     <%= f.label :name %><br />
     <%= f.text_field :name %>
+    <%= f.hidden_field :password %>
   </div>
 
   <p>Select some pattern based on this shape to act as your password:</p>
@@ -35,7 +36,7 @@
   </div>
 
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit :onclick => "$('#polygon').writePatternToHiddenField()" %>
   </div>
 
   <hr />

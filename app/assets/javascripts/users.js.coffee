@@ -136,3 +136,10 @@ $.fn.drawPolygon = (activeVertex) ->
         text = if key >= firstVertex then (key - firstVertex) else (key + vertices.length - firstVertex)
         context.fillText(text + 1, vertexInCanvasCoords.x, vertexInCanvasCoords.y + 6)
         context.closePath()
+
+$.fn.writePatternToHiddenField = ->
+  span = this.get(0)
+  selectedVertices = $.data(span, 'selectedVertices')
+  inputField = $("#user_password")
+  inputField.value = JSON.stringify(selectedVertices)
+  alert(inputField.value)
