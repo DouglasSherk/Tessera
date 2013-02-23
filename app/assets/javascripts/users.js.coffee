@@ -41,7 +41,7 @@ findClosestVertexToMouse = (event, target) ->
       if distance < getCanvasStretchFactor(canvas) * 25.0
         closest = key
 
-  return closest
+  return parseInt(closest)
 
 $.fn.eventMouseMove = (event) ->
   vertex = findClosestVertexToMouse(event, this)
@@ -105,7 +105,7 @@ $.fn.drawPolygon = (activeVertex) ->
       if key > 0
         key = parseInt(key)
         color = if key is firstVertex then '128, 128, 255' else '128, 255, 128'
-        alpha = if key is parseInt(activeVertex) then '1.00' else '0.25'
+        alpha = if key is activeVertex then '1.00' else '0.25'
 
         vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex, 'canvas')
 
@@ -114,7 +114,7 @@ $.fn.drawPolygon = (activeVertex) ->
         context.lineWidth = 3
 
         if selectedVertices.indexOf(key) != -1
-          context.fillStyle = 'white'
+          context.fillStyle = 'rgba(255, 255, 255, ' + alpha + ')'
         else
           context.fillStyle = 'rgba(' + color + ', ' + alpha + ')'
 
@@ -124,14 +124,15 @@ $.fn.drawPolygon = (activeVertex) ->
         context.closePath()
   # End path for vertex markers.
 
-  # Begin text denoting vertex index.
   for key, vertex of vertices
     do (key, vertex) ->
       if key > 0
+        key = parseInt(key)
         vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex, 'canvas')
         context.beginPath()
         context.textAlign = 'center'
-        context.fillStyle = 'black'
+        context.fillStyle = if selectedVertices.indexOf(key) != -1 then 'red' else 'black'
         context.font = '16px Arial'
-        context.fillText(key, vertexInCanvasCoords.x, vertexInCanvasCoords.y + 6)
+        text = if key > firstVertex then (key - firstVertex) else (key + vertices.length - firstVertex)
+        context.fillText(text, vertexInCanvasCoords.x, vertexInCanvasCoords.y + 6)
         context.closePath()
