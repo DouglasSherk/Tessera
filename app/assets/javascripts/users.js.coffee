@@ -41,7 +41,7 @@ findClosestVertexToMouse = (event, target) ->
       if distance < getCanvasStretchFactor(canvas) * 25.0
         closest = key
 
-  return parseInt(closest)
+  return if !closest? then null else parseInt(closest)
 
 $.fn.eventMouseMove = (event) ->
   vertex = findClosestVertexToMouse(event, this)
@@ -49,6 +49,7 @@ $.fn.eventMouseMove = (event) ->
 
 $.fn.eventMouseClick = (event) ->
   vertex = findClosestVertexToMouse(event, this)
+  if !vertex? then return
   selectedVertices = $.data(this, 'selectedVertices')
   indexOfCurrentVertex = selectedVertices.indexOf(parseInt(vertex))
 
@@ -142,4 +143,3 @@ $.fn.writePatternToHiddenField = ->
   selectedVertices = $.data(span, 'selectedVertices')
   inputField = $("#user_password")
   inputField.value = JSON.stringify(selectedVertices)
-  alert(inputField.value)
