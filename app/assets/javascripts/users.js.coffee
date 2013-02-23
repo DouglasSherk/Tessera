@@ -83,8 +83,6 @@ $.fn.drawPolygon = (activeVertex) ->
 
   context.clearRect(0, 0, width, height)
 
-  shrinkFactor = 0.5
-
   # Begin path for line.
   context.beginPath()
 
@@ -112,7 +110,7 @@ $.fn.drawPolygon = (activeVertex) ->
         vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex, 'canvas')
 
         context.beginPath()
-        context.arc(vertexInCanvasCoords.x, vertexInCanvasCoords.y, 10.0, 0, 2*Math.PI, false)
+        context.arc(vertexInCanvasCoords.x, vertexInCanvasCoords.y, 15.0, 0, 2*Math.PI, false)
         context.lineWidth = 3
 
         if selectedVertices.indexOf(key) != -1
@@ -124,5 +122,16 @@ $.fn.drawPolygon = (activeVertex) ->
         context.fill()
         context.stroke()
         context.closePath()
-
   # End path for vertex markers.
+
+  # Begin text denoting vertex index.
+  for key, vertex of vertices
+    do (key, vertex) ->
+      if key > 0
+        vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex, 'canvas')
+        context.beginPath()
+        context.textAlign = 'center'
+        context.fillStyle = 'black'
+        context.font = '16px Arial'
+        context.fillText(key, vertexInCanvasCoords.x, vertexInCanvasCoords.y + 6)
+        context.closePath()
