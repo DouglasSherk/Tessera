@@ -105,13 +105,13 @@ $.fn.drawPolygon = (activeVertex) ->
       if key > 0
         key = parseInt(key)
         color = if key is firstVertex then '128, 128, 255' else '128, 255, 128'
-        alpha = if key is activeVertex then '1.00' else '0.25'
+        alpha = if key is activeVertex then '1.00' else '0.50'
 
         vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex, 'canvas')
 
         context.beginPath()
         context.arc(vertexInCanvasCoords.x, vertexInCanvasCoords.y, 15.0, 0, 2*Math.PI, false)
-        context.lineWidth = 3
+        context.lineWidth = 2
 
         if selectedVertices.indexOf(key) != -1
           context.fillStyle = 'rgba(255, 255, 255, ' + alpha + ')'
