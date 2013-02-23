@@ -93,7 +93,7 @@ $.fn.drawPolygon = (activeVertex) ->
       vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex, 'canvas')
       context.lineTo(vertexInCanvasCoords.x, vertexInCanvasCoords.y)
 
-  context.strokeStyle = 'red'
+  context.strokeStyle = 'rgba(255, 0, 0, 0.5)'
   context.stroke()
 
   context.closePath()
