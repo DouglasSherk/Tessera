@@ -1,9 +1,8 @@
 Tessera::Application.routes.draw do
-  resources :users do
+  resources :users, :except => [:show, :edit, :destroy, :update] do
     collection do
       get 'refresh/:security', :action => 'refresh'
       get 'login'
-      post 'create' => 'users#create'
       post 'login' => 'users#loggedin'
     end
   end

@@ -19,6 +19,26 @@ class UsersController < ApplicationController
     end
   end
 
+  def convertPatternToLogicalForm
+    @user = User.new(params[:user])
+
+    encrypt = PolygonAuth::PolygonEncrypt.new
+    pattern = JSON.parse(@user[:password])
+    vertices = session[:vertices]
+    firstVertex = session[:firstVertex]
+
+    # Perform first-pass validation on pattern.
+    validation = encrypt.validatePattern(vertices, pattern, session[:security])
+
+    # Convert pattern to logical format.
+    # XXX: We validate before this conversion, so any logic based on re-ordering
+    #      needs to be done after here.
+    auth = PolygonAuth::PolygonGenerator.new
+    logicalPattern = auth.convertPatternToLogicalFormat(pattern, vertices, firstVertex)
+
+    return validation, logicalPattern
+  end
+
   # GET /users
   # GET /users.json
   def index
@@ -56,17 +76,31 @@ class UsersController < ApplicationController
   # POST /users/loggedin.json
   def loggedin
     @users = User.all
-    auth = PolygonAuth::PolygonEncrypt.new
+    encrypt = PolygonAuth::PolygonEncrypt.new
 
-    #input = 
+    validation, logicalPattern = convertPatternToLogicalForm()
 
+    foundValidPattern = false
     @users.each do |user|
-      password = auth.passwordFromHash(user[:password])
+      password = encrypt.passwordFromHash(user[:password])
+      if password == logicalPattern.to_json
+        foundValidPattern = true
+        break
+      end
     end
 
     respond_to do |format|
-      format.html # loggedin.html.erb
-      format.json { head :no_content }
+      if !validation.empty?
+        format.html { redirect_to :action => "login", :notice => validation }
+        format.json { head :no_content }
+      elsif foundValidPattern
+        puts("found!")
+        format.html # loggedin.html.erb
+        format.json { head :no_content }
+      else
+        format.html { redirect_to :action => "login", :notice => 'Given pattern not found.'}
+        format.json { head :no_content }
+      end
     end
   end
 
@@ -112,24 +146,12 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
   end
 
-  # POST /users
-  # POST /users.json
+  # POST /users/create
+  # POST /users/create.json
   def create
-    @user = User.new(params[:user])
-
     encrypt = PolygonAuth::PolygonEncrypt.new
-    pattern = JSON.parse(@user[:password])
-    vertices = session[:vertices]
-    firstVertex = session[:firstVertex]
 
-    # Perform first-pass validation on pattern.
-    validation = encrypt.validatePattern(vertices, pattern, session[:security])
-
-    # Convert pattern to logical format.
-    # XXX: We validate before this conversion, so any logic based on re-ordering
-    #      needs to be done after here.
-    auth = PolygonAuth::PolygonGenerator.new
-    logicalPattern = auth.convertPatternToLogicalFormat(pattern, vertices, firstVertex)
+    validation, logicalPattern = convertPatternToLogicalForm()
 
     respond_to do |format|
       if !validation.empty?
@@ -137,8 +159,9 @@ class UsersController < ApplicationController
         format.json { render json: @user.errors, status: :unprocessable_entity }
       else
         @user.password = encrypt.encryptPattern(logicalPattern)
+        puts(logicalPattern.to_json)
         if @user.save
-          format.html { redirect_to @user, notice: 'User was successfully created.' }
+          format.html { redirect_to :action => "new", notice: 'User was successfully created.' }
           format.json { render json: @user, status: :created, location: @user }
         else
           format.html { render action: "new" }

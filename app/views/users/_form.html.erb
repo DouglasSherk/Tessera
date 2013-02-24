@@ -1,5 +1,4 @@
-<% url = if type == 'new' then 'create' else 'login' end %>
-<%= form_for @user, :url => url do |f| %>
+<%= form_for @user, type == 'login' ? { :url => 'login' } : {} do |f| %>
   <%= javascript_tag do %>
     $(document).ready(function() {
       $("#polygon").storeVerticesAndDraw(
