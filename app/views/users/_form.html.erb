@@ -3,7 +3,8 @@
     $(document).ready(function() {
       $("#polygon").storeVerticesAndDraw(
         $.parseJSON('<%= raw @vertices.to_json %>'),
-        <%= raw @firstVertex %>
+        <%= @firstVertex %>,
+        <%= @security %>
       );
     });
   <% end %>

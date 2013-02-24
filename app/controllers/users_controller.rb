@@ -23,11 +23,14 @@ class UsersController < ApplicationController
     storeVerticesInSession(false) # don't force
     @vertices = session[:vertices]
     @firstVertex = session[:firstVertex]
+    @security = session[:security]
   end
 
 
   def storeVerticesInSession(force)
+    session[:security] ||= 0
     auth = PolygonAuth::PolygonGenerator.new
+
     if force
       session[:vertices] = auth.generatePolygon(session[:security])
       session[:firstVertex] = auth.generateFirstVertex(session[:vertices])

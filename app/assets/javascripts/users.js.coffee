@@ -29,6 +29,8 @@ findClosestVertexToMouse = (event, target) ->
 
   vertices = $.data(target, 'vertices')
 
+  securityFactor = $(target).calculateSecurityFactor()
+
   closest = null
 
   for key, vertex of vertices
@@ -38,7 +40,7 @@ findClosestVertexToMouse = (event, target) ->
       mouseY = event.pageY - offset.top
       distance = Math.sqrt(Math.pow(vertexInCanvasCoords.x - mouseX, 2.0) +
                            Math.pow(vertexInCanvasCoords.y - mouseY, 2.0))
-      if distance < getCanvasStretchFactor(canvas) * 25.0
+      if distance < getCanvasStretchFactor(canvas) * securityFactor * 25.0
         closest = key
 
   return if !closest? then null else parseInt(closest)
@@ -60,11 +62,24 @@ $.fn.eventMouseClick = (event) ->
 
   $(this).drawPolygon(vertex)
 
-$.fn.storeVerticesAndDraw = (vertices, firstVertex) ->
+$.fn.calculateSecurityFactor = ->
+  span = this.get(0)
+
+  security = $.data(span, 'security')
+
+  # Calculate a security factor for all constants like vertex circle size.
+  # 1 and 2 are more useful than 0 and 1, so we can just multiply in this number.
+  # Note that security=1 indicates higher security, but for the purposes of these
+  # calculations, it's much more convenient to make the higher number the less
+  # secure option.
+  return securityFactor = 2 - security
+
+$.fn.storeVerticesAndDraw = (vertices, firstVertex, security) ->
   span = this.get(0)
   $.data(span, 'vertices', vertices)
   $.data(span, 'firstVertex', firstVertex)
   $.data(span, 'selectedVertices', [])
+  $.data(span, 'security', security)
 
   this.mousemove(this.eventMouseMove)
   this.click(this.eventMouseClick)
@@ -77,6 +92,8 @@ $.fn.drawPolygon = (activeVertex) ->
   firstVertex = $.data(span, 'firstVertex')
   selectedVertices = $.data(span, 'selectedVertices')
 
+  securityFactor = this.calculateSecurityFactor()
+
   [canvas, context] = getCanvas(this)
 
   width = canvas.width
@@ -87,14 +104,14 @@ $.fn.drawPolygon = (activeVertex) ->
   # Begin path for line.
   context.beginPath()
 
-  context.lineWidth = 1
+  context.lineWidth = 4 * securityFactor
 
   for vertex in vertices
     do (vertex) ->
       vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex, 'canvas')
       context.lineTo(vertexInCanvasCoords.x, vertexInCanvasCoords.y)
 
-  context.strokeStyle = 'rgba(255, 0, 0, 0.5)'
+  context.strokeStyle = 'rgba(255, 0, 0, 0.25)'
   context.stroke()
 
   context.closePath()
@@ -111,8 +128,8 @@ $.fn.drawPolygon = (activeVertex) ->
         vertexInCanvasCoords = vertexToCanvasCoords(canvas, vertex, 'canvas')
 
         context.beginPath()
-        context.arc(vertexInCanvasCoords.x, vertexInCanvasCoords.y, 15.0, 0, 2*Math.PI, false)
-        context.lineWidth = 2
+        context.arc(vertexInCanvasCoords.x, vertexInCanvasCoords.y, securityFactor * 15.0, 0, 2*Math.PI, false)
+        context.lineWidth = 2 * securityFactor
 
         if selectedVertices.indexOf(key) != -1
           context.fillStyle = 'rgba(255, 255, 255, ' + alpha + ')'
@@ -133,9 +150,9 @@ $.fn.drawPolygon = (activeVertex) ->
         context.beginPath()
         context.textAlign = 'center'
         context.fillStyle = if selectedVertices.indexOf(key) != -1 then 'red' else 'black'
-        context.font = '16px Arial'
+        context.font = 16 * securityFactor + 'px Arial'
         text = if key >= firstVertex then (key - firstVertex) else (key + vertices.length - 1 - firstVertex)
-        context.fillText(text + 1, vertexInCanvasCoords.x, vertexInCanvasCoords.y + 6)
+        context.fillText(text + 1, vertexInCanvasCoords.x, vertexInCanvasCoords.y + 6 * securityFactor)
         context.closePath()
 
 $.fn.writePatternToHiddenField = ->
