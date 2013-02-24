@@ -26,11 +26,13 @@
 
   <hr />
 
+  <% if type == 'login' %>
+    <p>Please enter the name you signed up with.</p>
+  <% end %>
+
   <div class="field">
-    <% if type == 'new' %>
-      <%= f.label :name %><br />
-      <%= f.text_field :name %>
-    <% end %>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
     <%= f.hidden_field :password %>
   </div>
 

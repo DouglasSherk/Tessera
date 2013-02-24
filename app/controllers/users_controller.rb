@@ -90,6 +90,8 @@ class UsersController < ApplicationController
 
     createNewPattern()
 
+    session[:lastPageWithPolygon] = 'login'
+
     respond_to do |format|
       format.html # login.html.erb
       format.json { head :no_content }
@@ -108,11 +110,13 @@ class UsersController < ApplicationController
 
     foundValidPattern = false
     @users.each do |user|
-      password = encrypt.passwordFromHash(user[:password])
-      if password == logicalPattern.to_json
-        @user = user
-        foundValidPattern = true
-        break
+      if user[:name] == @user[:name]
+        password = encrypt.passwordFromHash(user[:password])
+        if password == logicalPattern.to_json
+          @user = user
+          foundValidPattern = true
+          break
+        end
       end
     end
 
@@ -122,10 +126,11 @@ class UsersController < ApplicationController
         format.json { head :no_content }
       elsif foundValidPattern
         session[:loggedin] = true
+        storeVerticesInSession(true) # force
         format.html { redirect_to :action => "index", :notice => 'You are now logged in as "' + @user.name + '"' }
         format.json { head :no_content }
       else
-        format.html { redirect_to :action => "login", :notice => 'Given pattern not found.'}
+        format.html { redirect_to :action => "login", :notice => 'Given name/pattern combination not found.'}
         format.json { head :no_content }
       end
     end
@@ -137,6 +142,8 @@ class UsersController < ApplicationController
     return if redirectIfNotLoggedIn
 
     reset_session
+
+    storeVerticesInSession(true) # force
 
     respond_to do |format|
       format.html { redirect_to :action => "index" }
@@ -152,7 +159,7 @@ class UsersController < ApplicationController
     storeVerticesInSession(true) # force
 
     respond_to do |format|
-      format.html { redirect_to :action => "new" }
+      format.html { redirect_to :action => session[:lastPageWithPolygon] || 'new' }
       format.json { head :no_content }
     end
   end
@@ -165,6 +172,8 @@ class UsersController < ApplicationController
     @user = User.new
 
     createNewPattern()
+
+    session[:lastPageWithPolygon] = 'new'
 
     respond_to do |format|
       format.html # new.html.erb
@@ -188,6 +197,7 @@ class UsersController < ApplicationController
       else
         @user.password = encrypt.encryptPattern(logicalPattern)
         if @user.save
+          storeVerticesInSession(true) # force
           format.html { redirect_to :action => "new", notice: 'User was successfully created.' }
           format.json { render json: @user, status: :created, location: @user }
         else
