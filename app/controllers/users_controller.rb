@@ -1,6 +1,13 @@
 class UsersController < ApplicationController
   include PolygonAuth
 
+  def createNewPattern
+    storeVerticesInSession(false) # don't force
+    @vertices = session[:vertices]
+    @firstVertex = session[:firstVertex]
+  end
+
+
   def storeVerticesInSession(force)
     auth = PolygonAuth::PolygonGenerator.new
     if force
@@ -29,6 +36,19 @@ class UsersController < ApplicationController
     respond_to do |format|
       format.html # list.html.erb
       format.json { render json: @users }
+    end
+  end
+
+  # GET /users/login
+  # GET /users/login.json
+  def login
+    @user = User.new
+
+    createNewPattern()
+
+    respond_to do |format|
+      format.html # login.html.erb
+      format.json { head :no_content }
     end
   end
 
@@ -61,10 +81,7 @@ class UsersController < ApplicationController
   def new
     @user = User.new
 
-    storeVerticesInSession(false) # don't force
-
-    @vertices = session[:vertices]
-    @firstVertex = session[:firstVertex]
+    createNewPattern()
 
     respond_to do |format|
       format.html # new.html.erb

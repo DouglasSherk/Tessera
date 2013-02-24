@@ -8,7 +8,7 @@
     });
   <% end %>
 
-  <% if @user.errors.any? or !params[:notice].empty? %>
+  <% if @user.errors.any? or params.has_key?(:notice) %>
     <div id="error_explanation">
       <% if @user.errors.any? %>
         <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
@@ -18,7 +18,7 @@
           <li><%= msg %></li>
         <% end %>
         </ul>
-      <% elsif !params[:notice].empty? %>
+      <% else %>
         <h2><%= params[:notice] %></h2>
       <% end %>
     </div>
@@ -40,7 +40,7 @@
   </div>
 
   <div class="actions">
-    <%= f.submit :onclick => "$('#polygon').writePatternToHiddenField()" %>
+    <%= f.submit "Submit", :onclick => "$('#polygon').writePatternToHiddenField()" %>
   </div>
 
   <hr />
