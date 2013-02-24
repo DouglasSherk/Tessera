@@ -8,15 +8,19 @@
     });
   <% end %>
 
-  <% if @user.errors.any? %>
+  <% if @user.errors.any? or !params[:notice].empty? %>
     <div id="error_explanation">
-      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+      <% if @user.errors.any? %>
+        <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
 
-      <ul>
-      <% @user.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
+        <ul>
+        <% @user.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+        </ul>
+      <% elsif !params[:notice].empty? %>
+        <h2><%= params[:notice] %></h2>
       <% end %>
-      </ul>
     </div>
   <% end %>
 
