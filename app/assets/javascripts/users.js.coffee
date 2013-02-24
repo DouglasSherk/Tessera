@@ -134,7 +134,7 @@ $.fn.drawPolygon = (activeVertex) ->
         context.textAlign = 'center'
         context.fillStyle = if selectedVertices.indexOf(key) != -1 then 'red' else 'black'
         context.font = '16px Arial'
-        text = if key >= firstVertex then (key - firstVertex) else (key + vertices.length - firstVertex)
+        text = if key >= firstVertex then (key - firstVertex) else (key + vertices.length - 1 - firstVertex)
         context.fillText(text + 1, vertexInCanvasCoords.x, vertexInCanvasCoords.y + 6)
         context.closePath()
 

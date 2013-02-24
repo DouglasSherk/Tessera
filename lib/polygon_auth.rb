@@ -65,8 +65,11 @@ module PolygonAuth
     end
 
     def encryptPattern(pattern)
-      puts("aaa" + pattern.to_json + "ccc")
       return BCrypt::Password.create(pattern.to_json, :cost => 17)
+    end
+
+    def passwordFromHash(hash)
+      return BCrypt::Password.new(hash)
     end
   end
 end

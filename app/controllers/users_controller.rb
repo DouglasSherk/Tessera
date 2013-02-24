@@ -52,6 +52,15 @@ class UsersController < ApplicationController
     end
   end
 
+  # POST /users/loggedin
+  # POST /users/loggedin.json
+  def loggedin
+    respond_to do |format|
+      format.html # loggedin.html.erb
+      format.json { head :no_content }
+    end
+  end
+
   # GET /users/refresh
   # GET /users/refresh.json
   def refresh

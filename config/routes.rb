@@ -3,6 +3,8 @@ Tessera::Application.routes.draw do
     collection do
       get 'refresh/:security', :action => 'refresh'
       get 'login'
+      post 'create' => 'users#create'
+      post 'login' => 'users#loggedin'
     end
   end
 
