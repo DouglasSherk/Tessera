@@ -7,6 +7,7 @@
 <% end%>
 
 <% if @loggedin %>
+  <%= link_to 'User List', 'users/list' %><br />
   <%= link_to 'Logout', 'users/logout' %><br />
 <% else %>
   <%= link_to 'Login', 'users/login' %><br />

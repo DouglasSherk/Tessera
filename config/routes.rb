@@ -2,6 +2,7 @@ Tessera::Application.routes.draw do
   resources :users, :except => [:show, :edit, :destroy, :update] do
     collection do
       get 'refresh/:security', :action => 'refresh'
+      get 'list'
       get 'login'
       post 'login' => 'users#loggedin'
       get 'logout'
