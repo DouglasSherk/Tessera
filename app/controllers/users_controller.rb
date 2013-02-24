@@ -55,6 +55,15 @@ class UsersController < ApplicationController
   # POST /users/loggedin
   # POST /users/loggedin.json
   def loggedin
+    @users = User.all
+    auth = PolygonAuth::PolygonEncrypt.new
+
+    #input = 
+
+    @users.each do |user|
+      password = auth.passwordFromHash(user[:password])
+    end
+
     respond_to do |format|
       format.html # loggedin.html.erb
       format.json { head :no_content }
