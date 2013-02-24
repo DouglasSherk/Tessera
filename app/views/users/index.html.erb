@@ -1,4 +1,14 @@
 <h1>Tessera</h1>
 
-<%= link_to 'Login', 'users/login' %><br />
-<%= link_to 'Create New User', new_user_path %>
+<% if params.has_key?(:notice) %>
+  <div id="error_explanation">
+    <h2><%= params[:notice] %></h2>
+  </div>
+<% end%>
+
+<% if @loggedin %>
+  <%= link_to 'Logout', 'users/logout' %><br />
+<% else %>
+  <%= link_to 'Login', 'users/login' %><br />
+  <%= link_to 'Create New User', new_user_path %>
+<% end %>

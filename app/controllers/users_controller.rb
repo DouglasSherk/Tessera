@@ -60,6 +60,8 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
+    @loggedin = session[:loggedin]
+
     respond_to do |format|
       format.html # index.html.erb
       format.json { head :no_content }
@@ -108,6 +110,7 @@ class UsersController < ApplicationController
     @users.each do |user|
       password = encrypt.passwordFromHash(user[:password])
       if password == logicalPattern.to_json
+        @user = user
         foundValidPattern = true
         break
       end
@@ -119,12 +122,25 @@ class UsersController < ApplicationController
         format.json { head :no_content }
       elsif foundValidPattern
         session[:loggedin] = true
-        format.html # loggedin.html.erb
+        format.html { redirect_to :action => "index", :notice => 'You are now logged in as "' + @user.name + '"' }
         format.json { head :no_content }
       else
         format.html { redirect_to :action => "login", :notice => 'Given pattern not found.'}
         format.json { head :no_content }
       end
+    end
+  end
+
+  # GET /users/logout
+  # GET /users/logout.json
+  def logout
+    return if redirectIfNotLoggedIn
+
+    reset_session
+
+    respond_to do |format|
+      format.html { redirect_to :action => "index" }
+      format.json { head :no_content }
     end
   end
 

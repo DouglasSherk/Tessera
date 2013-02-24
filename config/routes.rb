@@ -4,6 +4,7 @@ Tessera::Application.routes.draw do
       get 'refresh/:security', :action => 'refresh'
       get 'login'
       post 'login' => 'users#loggedin'
+      get 'logout'
     end
   end
 
