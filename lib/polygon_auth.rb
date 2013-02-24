@@ -39,15 +39,34 @@ module PolygonAuth
       # with the last vertex.
       return rand(vertices.length - 1) + 1
     end
+
+    def convertPatternToLogicalFormat(pattern, vertices, firstVertex)
+      logicalFirstVertex = firstVertex - 1
+      logicalPattern = pattern.map do |vertex|
+        if vertex < logicalFirstVertex
+          vertex += vertices.length
+        end
+        vertex -= logicalFirstVertex
+      end
+
+      return logicalPattern
+    end
   end
 
   class PolygonEncrypt
-    def validatePattern(vertices, pattern)
-      return true
+    def validatePattern(vertices, pattern, security)
+      return "Not enough vertices." if pattern.length < 3 || pattern.length > 6 + security * 18
+
+      pattern.each do |vertex|
+        return "Invalid pattern." if !vertex.is_a? Integer
+      end
+
+      return ""
     end
 
     def encryptPattern(pattern)
-      return BCrypt::Password.create(pattern.to_json, :cost => 20)
+      puts("aaa" + pattern.to_json + "ccc")
+      return BCrypt::Password.create(pattern.to_json, :cost => 17)
     end
   end
 end

@@ -1,6 +1,17 @@
 class UsersController < ApplicationController
   include PolygonAuth
 
+  def storeVerticesInSession(force)
+    auth = PolygonAuth::PolygonGenerator.new
+    if force
+      session[:vertices] = auth.generatePolygon(session[:security])
+      session[:firstVertex] = auth.generateFirstVertex(session[:vertices])
+    else
+      session[:vertices] ||= auth.generatePolygon
+      session[:firstVertex] ||= auth.generateFirstVertex(session[:vertices])
+    end
+  end
+
   # GET /users
   # GET /users.json
   def index
@@ -24,10 +35,9 @@ class UsersController < ApplicationController
   # GET /users/refresh
   # GET /users/refresh.json
   def refresh
-    auth = PolygonAuth::PolygonGenerator.new
     session[:security] = params[:security].to_i
-    session[:vertices] = auth.generatePolygon(session[:security])
-    session[:firstVertex] = auth.generateFirstVertex(session[:vertices])
+
+    storeVerticesInSession(true) # force
 
     respond_to do |format|
       format.html { redirect_to :action => "new" }
@@ -51,9 +61,7 @@ class UsersController < ApplicationController
   def new
     @user = User.new
 
-    auth = PolygonAuth::PolygonGenerator.new
-    session[:vertices] ||= auth.generatePolygon
-    session[:firstVertex] ||= auth.generateFirstVertex(session[:vertices])
+    storeVerticesInSession(false) # don't force
 
     @vertices = session[:vertices]
     @firstVertex = session[:firstVertex]
@@ -74,14 +82,36 @@ class UsersController < ApplicationController
   def create
     @user = User.new(params[:user])
 
+    encrypt = PolygonAuth::PolygonEncrypt.new
+    pattern = JSON.parse(@user[:password])
+    vertices = session[:vertices]
+    firstVertex = session[:firstVertex]
+
+    # Perform first-pass validation on pattern.
+    validation = encrypt.validatePattern(vertices, pattern, session[:security])
+
+    # Convert pattern to logical format.
+    # XXX: We validate before this conversion, so any logic based on re-ordering
+    #      needs to be done after here.
+    auth = PolygonAuth::PolygonGenerator.new
+    logicalPattern = auth.convertPatternToLogicalFormat(pattern, vertices, firstVertex)
+
     respond_to do |format|
-      if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
-        format.json { render json: @user, status: :created, location: @user }
-      else
-        format.html { render action: "new" }
+      if !validation.empty?
+        format.html { redirect_to :action => "new", notice: validation }
         format.json { render json: @user.errors, status: :unprocessable_entity }
+      else
+        @user.password = encrypt.encryptPattern(logicalPattern)
+        if @user.save
+          format.html { redirect_to @user, notice: 'User was successfully created.' }
+          format.json { render json: @user, status: :created, location: @user }
+        else
+          format.html { render action: "new" }
+          format.json { render json: @user.errors, status: :unprocessable_entity }
+        end
       end
+
+      storeVerticesInSession(true) # force
     end
   end
 

@@ -142,4 +142,4 @@ $.fn.writePatternToHiddenField = ->
   span = this.get(0)
   selectedVertices = $.data(span, 'selectedVertices')
   inputField = $("#user_password")
-  inputField.value = JSON.stringify(selectedVertices)
+  inputField.val(JSON.stringify(selectedVertices))
