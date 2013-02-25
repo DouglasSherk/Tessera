@@ -1,6 +1,21 @@
 class UsersController < ApplicationController
   include PolygonAuth
 
+  MAX_LOGINS = 3
+  MAX_DOS = 10
+
+  def redirectIfDOSingOrTooManyLogins
+    if session.has_key?(:dos)
+      render :dos
+      return true
+    elsif session.has_key?(:blocked)
+      render :blocked
+      return true
+    end
+
+    return false
+  end
+
   def redirectIfLoggedIn
     if session.has_key?(:loggedin)
       redirect_to users_url
@@ -72,6 +87,8 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
+    return if redirectIfDOSingOrTooManyLogins
+
     @loggedin = session[:loggedin]
 
     respond_to do |format|
@@ -83,6 +100,7 @@ class UsersController < ApplicationController
   # GET /users/list
   # GET /users/list.json
   def list
+    return if redirectIfDOSingOrTooManyLogins
     return if redirectIfNotLoggedIn
 
     @users = User.all
@@ -96,6 +114,7 @@ class UsersController < ApplicationController
   # GET /users/login
   # GET /users/login.json
   def login
+    return if redirectIfDOSingOrTooManyLogins
     return if redirectIfLoggedIn
 
     @user = User.new
@@ -113,6 +132,7 @@ class UsersController < ApplicationController
   # POST /users/loggedin
   # POST /users/loggedin.json
   def loggedin
+    return if redirectIfDOSingOrTooManyLogins
     return if redirectIfLoggedIn
 
     @users = User.all
@@ -142,8 +162,15 @@ class UsersController < ApplicationController
         format.html { redirect_to :action => "index", :success => 'You are now logged in as "' + @user.name + '"' }
         format.json { head :no_content }
       else
-        format.html { redirect_to :action => "login", :error => 'Given name/pattern combination not found.'}
-        format.json { head :no_content }
+        session[:failedLogins] ||= 0
+        session[:failedLogins] += 1
+        if session[:failedLogins] >= MAX_LOGINS
+          session[:blocked] = true
+          redirectIfDOSingOrTooManyLogins
+        else
+          format.html { redirect_to :action => "login", :error => 'Given name/pattern combination not found.'}
+          format.json { head :no_content }
+        end
       end
     end
   end
@@ -151,6 +178,7 @@ class UsersController < ApplicationController
   # GET /users/logout
   # GET /users/logout.json
   def logout
+    return if redirectIfDOSingOrTooManyLogins
     return if redirectIfNotLoggedIn
 
     reset_session
@@ -166,6 +194,8 @@ class UsersController < ApplicationController
   # GET /users/refresh
   # GET /users/refresh.json
   def refresh
+    return if redirectIfDOSingOrTooManyLogins
+
     session[:security] = params[:security].to_i
 
     storeVerticesInSession(true) # force
@@ -179,6 +209,7 @@ class UsersController < ApplicationController
   # GET /users/new
   # GET /users/new.json
   def new
+    return if redirectIfDOSingOrTooManyLogins
     return if redirectIfLoggedIn
 
     @user = User.new
@@ -196,6 +227,7 @@ class UsersController < ApplicationController
   # POST /users/create
   # POST /users/create.json
   def create
+    return if redirectIfDOSingOrTooManyLogins
     return if redirectIfLoggedIn
 
     encrypt = PolygonAuth::PolygonEncrypt.new
@@ -218,6 +250,30 @@ class UsersController < ApplicationController
           format.json { render json: @user.errors, status: :unprocessable_entity }
         end
       end
+    end
+  end
+
+  # NOTE: Not actually available.
+  # GET /users/blocked
+  # GET /users/blocked.json
+  def blocked
+    @blocked = session[:blocked]
+
+    respond_to do |format|
+      format.html # blocked.html.erb
+      format.json { head :no_content }
+    end
+  end
+
+  # NOTE: Not actually available.
+  # GET /users/dos
+  # GET /users/dos.json
+  def dos
+    @dos = session[:dos]
+
+    respond_to do |format|
+      format.html # dos.html.erb
+      format.json { head :no_content }
     end
   end
 end
