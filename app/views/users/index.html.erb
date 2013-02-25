@@ -2,19 +2,12 @@
 
 <hr class="soften small-margin" />
 
-<p>
-Tessera is a pattern-based login system prototype. To use it, create a new
-user by entering a username and a pattern. Each time you login, a new pattern
-will be generated, but you will always login using the same set of vertices
-that you initially entered. This prevents people from looking over your
-shoulders or looking at smudge marks on your screen to break your pattern.
-</p>
-
 <% if params.has_key?(:error) %>
   <div class="alert alert-error">
     <a class="close" data-dismiss="alert">×</a>
     <%= params[:notice] %>
   </div>
+  <br />
 <% end %>
 
 <% if params.has_key?(:success) %>
@@ -22,7 +15,16 @@ shoulders or looking at smudge marks on your screen to break your pattern.
     <a class="close" data-dismiss="alert">×</a>
     <%= params[:success] %>
   </div>
+  <br />
 <% end %>
+
+<p>
+Tessera is a pattern-based login system prototype. To use it, create a new
+user by entering a username and a pattern. Each time you login, a new pattern
+will be generated, but you will always login using the same set of vertices
+that you initially entered. This prevents people from looking over your
+shoulders or looking at smudge marks on your screen to break your pattern.
+</p>
 
 <br />
 
