@@ -12,14 +12,14 @@ module PolygonAuth
 
   class PolygonGenerator
     def generatePolygon(security = 0)
-      angle = 0.0, neededVertices = 6 + security * 18
+      angle = 0.0, neededVertices = 9 + security * 9, securityFactor = 2 - security
       vertices = Array.new
       angleStep = 2*Math::PI/neededVertices
 
       distanceBetweenVertices = Math.sqrt(
-        Math.cos(angleStep)**2 + Math.sin(angleStep)**2)
-
-      shrinkFactor = 0.75
+        Math.cos(angleStep)**2 + Math.sin(angleStep)**2) *
+        securityFactor
+      shrinkFactor = security == 0 ? 0.6 : 0.75
 
       0.upto(neededVertices) do |vertexNum|
         vertices.push(Vertex.new(
