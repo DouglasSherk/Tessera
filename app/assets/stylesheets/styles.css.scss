@@ -3,3 +3,14 @@
 
 // Include responsive Bootstrap styles
 @import "bootstrap-responsive";
+
+body {
+  .buttons {
+    text-align: center;
+  }
+
+  .btn {
+    width: 200px;
+    margin: 5px auto;
+  }
+}

@@ -6,10 +6,12 @@
   </div>
 <% end%>
 
-<% if @loggedin %>
-  <%= link_to 'User List', 'users/list' %><br />
-  <%= link_to 'Logout', 'users/logout' %><br />
-<% else %>
-  <%= link_to 'Login', 'users/login' %><br />
-  <%= link_to 'Create New User', new_user_path %>
-<% end %>
+<div class="buttons">
+  <% if @loggedin %>
+    <%= link_to 'User List', 'users/list', :class => 'btn' %><br />
+    <%= link_to 'Logout', 'users/logout', :class => 'btn' %><br />
+  <% else %>
+    <%= link_to 'Login', 'users/login', :class => 'btn btn-primary' %><br />
+    <%= link_to 'Create New User', new_user_path, :class => 'btn' %>
+  <% end %>
+</div>
