@@ -13,6 +13,15 @@ body {
     width: calc(100% - 12px);
   }
 
+  canvas {
+    margin: 10px 0;
+    -moz-box-shadow: 0 0 5px #000;
+    -webkit-box-shadow: 0 0 5px #000;
+    box-shadow: 0 0 5px #000;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+  }
+
   .buttons {
     text-align: center;
   }
