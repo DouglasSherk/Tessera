@@ -3,7 +3,7 @@ class UsersController < ApplicationController
 
   def redirectIfLoggedIn
     if session.has_key?(:loggedin)
-      redirect_to root_url
+      redirect_to users_url
       return true
     end
 
