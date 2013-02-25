@@ -8,6 +8,11 @@ module PolygonAuth
       @x = _x
       @y = _y
     end
+
+    def distanceTo(otherVertex)
+      puts Math.sqrt((@x - otherVertex.x)**2 + (@y - otherVertex.y)**2)
+      return Math.sqrt((@x - otherVertex.x)**2 + (@y - otherVertex.y)**2)
+    end
   end
 
   class PolygonGenerator
@@ -18,14 +23,18 @@ module PolygonAuth
 
       distanceBetweenVertices = Math.sqrt(
         Math.cos(angleStep)**2 + Math.sin(angleStep)**2) *
-        securityFactor
+        (securityFactor + 1)
       shrinkFactor = security == 0 ? 0.6 : 0.75
 
       0.upto(neededVertices) do |vertexNum|
-        vertices.push(Vertex.new(
-          shrinkFactor * (Math.cos(angleStep * vertexNum) + distanceBetweenVertices * (rand - 0.5) * 0.4),
-          shrinkFactor * (Math.sin(angleStep * vertexNum) + distanceBetweenVertices * (rand - 0.5) * 0.4)
-        ))
+        vertex = nil
+        begin
+          vertex = Vertex.new(
+            shrinkFactor * (Math.cos(angleStep * vertexNum) + distanceBetweenVertices * (rand - 0.5) * 0.4),
+            shrinkFactor * (Math.sin(angleStep * vertexNum) + distanceBetweenVertices * (rand - 0.5) * 0.4)
+          )
+        end while vertex == nil or (!vertices.empty? and vertex.distanceTo(vertices.last) < 0.20 * securityFactor)
+        vertices.push(vertex)
       end
 
       # First must be same as last.
