@@ -1,15 +1,17 @@
-<h1>Listing users</h1>
+<h2>Tessera - Listing Users</h2>
 
-<table border="1">
+<hr class="soften small-margin" />
+
+<table class="table table-striped table-hover">
   <tr>
     <th>Name</th>
   </tr>
 
-<% @users.each do |user| %>
-  <tr>
-    <td><%= user.name %></td>
-  </tr>
-<% end %>
+  <% @users.each do |user| %>
+    <tr>
+      <td><%= user.name %></td>
+    </tr>
+  <% end %>
 </table>
 
-<%= link_to 'Back', users_path %>
+<%= link_to 'Back', users_path, :class => "btn" %>
