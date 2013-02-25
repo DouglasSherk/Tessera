@@ -23,7 +23,7 @@ module PolygonAuth
 
       distanceBetweenVertices = Math.sqrt(
         Math.cos(angleStep)**2 + Math.sin(angleStep)**2) *
-        (securityFactor + 1)
+        (securityFactor + 0.5)
       shrinkFactor = security == 0 ? 0.6 : 0.75
 
       0.upto(neededVertices) do |vertexNum|
@@ -33,7 +33,9 @@ module PolygonAuth
             shrinkFactor * (Math.cos(angleStep * vertexNum) + distanceBetweenVertices * (rand - 0.5) * 0.4),
             shrinkFactor * (Math.sin(angleStep * vertexNum) + distanceBetweenVertices * (rand - 0.5) * 0.4)
           )
-        end while vertex == nil or (!vertices.empty? and vertex.distanceTo(vertices.last) < 0.20 * securityFactor)
+        end while vertex == nil or
+                  (!vertices.empty? and vertex.distanceTo(vertices.last) < 0.20 * securityFactor) or
+                  (!vertices.empty? and vertexNum == neededVertices-2 and vertex.distanceTo(vertices.first) < 0.20 * securityFactor)
         vertices.push(vertex)
       end
 
