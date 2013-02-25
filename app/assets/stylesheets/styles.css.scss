@@ -5,6 +5,14 @@
 @import "bootstrap-responsive";
 
 body {
+  input {
+    padding: 4px 6px;
+    width: -moz-calc(100% - 12px);
+    width: -webkit-calc(100% - 12px);
+    width: -o-calc(100% - 12px);
+    width: calc(100% - 12px);
+  }
+
   .buttons {
     text-align: center;
   }
@@ -12,5 +20,13 @@ body {
   .btn-menu {
     width: 200px;
     margin: 5px auto;
+  }
+
+  .small-margin {
+    margin: 10px 0;
+  }
+
+  .alert {
+    margin-bottom: 10px;
   }
 }

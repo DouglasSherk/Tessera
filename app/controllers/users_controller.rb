@@ -12,7 +12,7 @@ class UsersController < ApplicationController
 
   def redirectIfNotLoggedIn
     if !session.has_key?(:loggedin)
-      redirect_to :action => "login", :notice => 'You must login to view this page.'
+      redirect_to :action => "login", :error => 'You must login to view this page.'
       return true
     end
 
@@ -125,15 +125,15 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       if !validation.empty?
-        format.html { redirect_to :action => "login", :notice => validation }
+        format.html { redirect_to :action => "login", :error => validation }
         format.json { head :no_content }
       elsif foundValidPattern
         session[:loggedin] = true
         storeVerticesInSession(true) # force
-        format.html { redirect_to :action => "index", :notice => 'You are now logged in as "' + @user.name + '"' }
+        format.html { redirect_to :action => "index", :success => 'You are now logged in as "' + @user.name + '"' }
         format.json { head :no_content }
       else
-        format.html { redirect_to :action => "login", :notice => 'Given name/pattern combination not found.'}
+        format.html { redirect_to :action => "login", :error => 'Given name/pattern combination not found.'}
         format.json { head :no_content }
       end
     end
@@ -195,13 +195,13 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       if !validation.empty?
-        format.html { redirect_to :action => "new", notice: validation }
+        format.html { redirect_to :action => "new", error: validation }
         format.json { render json: @user.errors, status: :unprocessable_entity }
       else
         @user.password = encrypt.encryptPattern(logicalPattern)
         if @user.save
           storeVerticesInSession(true) # force
-          format.html { redirect_to :action => "new", notice: 'User was successfully created.' }
+          format.html { redirect_to :action => "new", success: 'User was successfully created.' }
           format.json { render json: @user, status: :created, location: @user }
         else
           format.html { render action: "new" }

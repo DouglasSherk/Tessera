@@ -1,7 +1,9 @@
 <%= form_for @user, type == 'login' ? { :url => 'login' } : {} do |f| %>
-  <h1>
+  <h2>
     Tessera - <%= title %>
-  </h1>
+  </h2>
+
+  <hr class="soften small-margin" />
 
   <%= javascript_tag do %>
     $(document).ready(function() {
@@ -13,23 +15,28 @@
     });
   <% end %>
 
-  <% if @user.errors.any? or params.has_key?(:notice) %>
-    <div id="error_explanation">
+  <% if @user.errors.any? or params.has_key?(:error) %>
+    <div class="alert alert-error">
+      <a class="close" data-dismiss="alert">×</a>
       <% if @user.errors.any? %>
-        <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
-
+        <%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:
         <ul>
-        <% @user.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
+          <% @user.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
         </ul>
       <% else %>
-        <h2><%= params[:notice] %></h2>
+        <%= params[:error] %>
       <% end %>
     </div>
   <% end %>
 
-  <hr class="soften" />
+  <% if params.has_key?(:success) %>
+    <div class="alert alert-success">
+      <a class="close" data-dismiss="alert">×</a>
+      <%= params[:success] %>
+    </div>
+  <% end %>
 
   <div class="field">
     <%= f.label :name %>
@@ -46,6 +53,7 @@
   <div class="actions">
     <%= f.submit "Submit", :onclick => "$('#polygon').writePatternToHiddenField()", :class => 'btn btn-primary' %>
     <%= link_to 'Back', users_path, :class => 'btn' %>
+    <hr class="soften small-margin" />
     <%= link_to 'Low Security', 'refresh/0', :class => 'btn btn-inverse' %>
     <%= link_to 'High Security', 'refresh/1', :class => 'btn btn-inverse' %>
   </div>

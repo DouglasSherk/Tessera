@@ -1,12 +1,22 @@
-<h1>Tessera</h1>
+<h2>Tessera</h2>
 
-<hr class="soften" />
+<hr class="soften small-margin" />
 
-<% if params.has_key?(:notice) %>
-  <div id="error_explanation">
-    <h2><%= params[:notice] %></h2>
+<% if params.has_key?(:error) %>
+  <div class="alert alert-error">
+    <a class="close" data-dismiss="alert">×</a>
+    <%= params[:notice] %>
   </div>
-<% end%>
+<% end %>
+
+<% if params.has_key?(:success) %>
+  <div class="alert alert-success">
+    <a class="close" data-dismiss="alert">×</a>
+    <%= params[:success] %>
+  </div>
+<% end %>
+
+<br />
 
 <div class="buttons">
   <% if @loggedin %>
