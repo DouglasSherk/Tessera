@@ -10,7 +10,6 @@ module PolygonAuth
     end
 
     def distanceTo(otherVertex)
-      puts Math.sqrt((@x - otherVertex.x)**2 + (@y - otherVertex.y)**2)
       return Math.sqrt((@x - otherVertex.x)**2 + (@y - otherVertex.y)**2)
     end
   end
@@ -52,6 +51,36 @@ module PolygonAuth
         end
       # We failed at finding a valid polygon. Restart from the beginning.
       end while numPasses >= MAX_PASSES
+
+      # Center the polygon on the plane.
+      leftMostVertex = vertices.first
+      rightMostVertex = vertices.first
+      topMostVertex = vertices.first
+      bottomMostVertex = vertices.first
+      vertices.each do |vertex|
+        if vertex.x < leftMostVertex.x
+          leftMostVertex = vertex
+        elsif vertex.x > rightMostVertex.x
+          rightMostVertex = vertex
+        end
+
+        if vertex.y < topMostVertex.y
+          topMostVertex = vertex
+        elsif vertex.y > bottomMostVertex.y
+          bottomMostVertex = vertex
+        end
+      end
+
+      # Double the distance needed along each axis to center the polygon.
+      horizontalOffset = (1.0 - rightMostVertex.x) - (leftMostVertex.x + 1.0)
+      verticalOffset = (1.0 - bottomMostVertex.y) - (topMostVertex.y + 1.0)
+
+      # Apply the offset distance to each vertex.
+      vertices.map! do |vertex|
+        vertex.x += horizontalOffset/2
+        vertex.y += verticalOffset/2
+        vertex
+      end
 
       # First must be same as last.
       vertices[0] = vertices.last
