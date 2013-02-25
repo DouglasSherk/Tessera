@@ -30,6 +30,10 @@ GEM
       multi_json (~> 1.0)
     arel (3.0.2)
     bcrypt-ruby (3.0.1)
+    bootstrap-rails (0.0.7)
+      railties (~> 3.1)
+    bootstrap-sass (2.3.0.1)
+      sass (~> 3.2)
     builder (3.0.4)
     coffee-rails (3.2.2)
       coffee-script (>= 2.2.0)
@@ -107,6 +111,8 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt-ruby
+  bootstrap-rails
+  bootstrap-sass
   coffee-rails (~> 3.2.1)
   jquery-rails
   pg
