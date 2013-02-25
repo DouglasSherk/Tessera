@@ -152,6 +152,16 @@ class UsersController < ApplicationController
       end
     end
 
+    if !validation.empty? or !foundValidPattern
+      session[:failedLogins] ||= 0
+      session[:failedLogins] += 1
+
+      if session[:failedLogins] >= MAX_LOGINS
+        session[:blocked] = true
+        return redirectIfDOSingOrTooManyLogins
+      end
+    end
+
     respond_to do |format|
       if !validation.empty?
         format.html { redirect_to :action => "login", :error => validation }
@@ -162,15 +172,8 @@ class UsersController < ApplicationController
         format.html { redirect_to :action => "index", :success => 'You are now logged in as "' + @user.name + '"' }
         format.json { head :no_content }
       else
-        session[:failedLogins] ||= 0
-        session[:failedLogins] += 1
-        if session[:failedLogins] >= MAX_LOGINS
-          session[:blocked] = true
-          redirectIfDOSingOrTooManyLogins
-        else
-          format.html { redirect_to :action => "login", :error => 'Given name/pattern combination not found.'}
-          format.json { head :no_content }
-        end
+        format.html { redirect_to :action => "login", :error => 'Given name/pattern combination not found.'}
+        format.json { head :no_content }
       end
     end
   end
@@ -250,30 +253,6 @@ class UsersController < ApplicationController
           format.json { render json: @user.errors, status: :unprocessable_entity }
         end
       end
-    end
-  end
-
-  # NOTE: Not actually available.
-  # GET /users/blocked
-  # GET /users/blocked.json
-  def blocked
-    @blocked = session[:blocked]
-
-    respond_to do |format|
-      format.html # blocked.html.erb
-      format.json { head :no_content }
-    end
-  end
-
-  # NOTE: Not actually available.
-  # GET /users/dos
-  # GET /users/dos.json
-  def dos
-    @dos = session[:dos]
-
-    respond_to do |format|
-      format.html # dos.html.erb
-      format.json { head :no_content }
     end
   end
 end
