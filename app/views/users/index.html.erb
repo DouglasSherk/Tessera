@@ -10,10 +10,10 @@
 
 <div class="buttons">
   <% if @loggedin %>
-    <%= link_to 'User List', 'users/list', :class => 'btn' %><br />
-    <%= link_to 'Logout', 'users/logout', :class => 'btn' %><br />
+    <%= link_to 'User List', 'users/list', :class => 'btn btn-menu' %><br />
+    <%= link_to 'Logout', 'users/logout', :class => 'btn btn-menu' %><br />
   <% else %>
-    <%= link_to 'Login', 'users/login', :class => 'btn btn-primary' %><br />
-    <%= link_to 'Create New User', new_user_path, :class => 'btn' %>
+    <%= link_to 'Login', 'users/login', :class => 'btn btn-primary btn-menu' %><br />
+    <%= link_to 'Create New User', new_user_path, :class => 'btn btn-menu' %>
   <% end %>
 </div>
