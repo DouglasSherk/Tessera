@@ -16,6 +16,8 @@ module PolygonAuth
   end
 
   class PolygonGenerator
+    MAX_PASSES = 1000
+
     def generatePolygon(security = 0)
       angle = 0.0, neededVertices = 9 + security * 9, securityFactor = 2 - security
       vertices = Array.new
@@ -24,20 +26,32 @@ module PolygonAuth
       distanceBetweenVertices = Math.sqrt(
         Math.cos(angleStep)**2 + Math.sin(angleStep)**2) *
         (securityFactor + 0.5)
-      shrinkFactor = security == 0 ? 0.6 : 0.75
+      shrinkFactor = 0.6
 
-      0.upto(neededVertices) do |vertexNum|
-        vertex = nil
-        begin
-          vertex = Vertex.new(
-            shrinkFactor * (Math.cos(angleStep * vertexNum) + distanceBetweenVertices * (rand - 0.5) * 0.4),
-            shrinkFactor * (Math.sin(angleStep * vertexNum) + distanceBetweenVertices * (rand - 0.5) * 0.4)
-          )
-        end while vertex == nil or
-                  (!vertices.empty? and vertex.distanceTo(vertices.last) < 0.20 * securityFactor) or
-                  (!vertices.empty? and vertexNum == neededVertices-2 and vertex.distanceTo(vertices.first) < 0.20 * securityFactor)
-        vertices.push(vertex)
-      end
+      numPasses = MAX_PASSES
+      begin
+        vertices.clear()
+        numPasses = 0
+        0.upto(neededVertices) do |vertexNum|
+          vertex = nil
+          begin
+            numPasses += 1
+            generatedValidVertex = true
+            vertex = Vertex.new(
+              shrinkFactor * (Math.cos(angleStep * vertexNum) + distanceBetweenVertices * (rand - 0.5) * 0.4),
+              shrinkFactor * (Math.sin(angleStep * vertexNum) + distanceBetweenVertices * (rand - 0.5) * 0.4)
+            )
+            vertices.each do |storedVertex|
+              if vertex.distanceTo(storedVertex) < 0.2 * securityFactor
+                generatedValidVertex = false
+                break
+              end
+            end
+          end while (vertex == nil or not generatedValidVertex) and numPasses < MAX_PASSES
+          vertices.push(vertex)
+        end
+      # We failed at finding a valid polygon. Restart from the beginning.
+      end while numPasses >= MAX_PASSES
 
       # First must be same as last.
       vertices[0] = vertices.last
