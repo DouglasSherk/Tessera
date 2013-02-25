@@ -1,4 +1,8 @@
 <%= form_for @user, type == 'login' ? { :url => 'login' } : {} do |f| %>
+  <h1>
+    Tessera - <%= title %>
+  </h1>
+
   <%= javascript_tag do %>
     $(document).ready(function() {
       $("#polygon").storeVerticesAndDraw(
@@ -40,6 +44,9 @@
   </div>
 
   <div class="actions">
-    <%= f.submit "Submit", :onclick => "$('#polygon').writePatternToHiddenField()" %>
+    <%= f.submit "Submit", :onclick => "$('#polygon').writePatternToHiddenField()", :class => 'btn btn-primary' %>
+    <%= link_to 'Back', users_path, :class => 'btn' %>
+    <%= link_to 'Low Security', 'refresh/0', :class => 'btn btn-inverse' %>
+    <%= link_to 'High Security', 'refresh/1', :class => 'btn btn-inverse' %>
   </div>
 <% end %>
