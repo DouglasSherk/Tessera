@@ -202,8 +202,6 @@ class UsersController < ApplicationController
 
     patternValidation, logicalPattern = convertPatternToLogicalForm()
 
-    storeVerticesInSession(true) # force
-
     respond_to do |format|
       if !patternValidation.empty?
         format.html { redirect_to :action => "new", error: validation }
@@ -211,7 +209,8 @@ class UsersController < ApplicationController
       else
         @user.password = encrypt.encryptPattern(logicalPattern)
         if @user.save
-          format.html { redirect_to :action => "new", success: 'User was successfully created.' }
+          storeVerticesInSession(true) # force
+          format.html { redirect_to :action => "index", success: 'User ' + @user[:name] + ' was successfully created.' }
           format.json { render json: @user, status: :created, location: @user }
         else
           createNewPattern()
