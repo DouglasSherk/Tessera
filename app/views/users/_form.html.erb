@@ -27,21 +27,12 @@
 
   <hr />
 
-  <% if type == 'login' %>
-    <p>Please enter the name you signed up with.</p>
-  <% end %>
-
   <div class="field">
     <%= f.label :name %><br />
     <%= f.text_field :name %>
     <%= f.hidden_field :password %>
   </div>
 
-  <% if type == 'new' %>
-    <p>Select some pattern based on this shape to act as your password:</p>
-  <% else %>
-    <p>Enter a pattern you have saved to authenticate yourself.</p>
-  <% end %>
   <div id="polygon">
     <canvas id="canvas" width="512" height="512">
       <p>Please get a modern browser.</p>
