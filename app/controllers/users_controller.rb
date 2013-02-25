@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   include PolygonAuth
+  include ActionView::Helpers::DateHelper
 
   MAX_LOGINS = 3
   MAX_DOS = 10
@@ -9,8 +10,15 @@ class UsersController < ApplicationController
       render :dos
       return true
     elsif session.has_key?(:blocked)
-      render :blocked
-      return true
+      timeSinceBlocked = Time.now - session[:blocked]
+      if timeSinceBlocked >= 1.minutes
+        session.delete(:blocked)
+        session.delete(:failedLoginAttempts)
+      else
+        @time = time_ago_in_words(session[:blocked])
+        render :blocked
+        return true
+      end
     end
 
     return false
@@ -157,8 +165,9 @@ class UsersController < ApplicationController
       session[:failedLogins] += 1
 
       if session[:failedLogins] >= MAX_LOGINS
-        session[:blocked] = true
-        return redirectIfDOSingOrTooManyLogins
+        session[:blocked] = Time.now
+        redirect_to :action => "index"
+        return
       end
     end
 
