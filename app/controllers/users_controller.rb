@@ -200,25 +200,25 @@ class UsersController < ApplicationController
 
     encrypt = PolygonAuth::PolygonEncrypt.new
 
-    validation, logicalPattern = convertPatternToLogicalForm()
+    patternValidation, logicalPattern = convertPatternToLogicalForm()
+
+    storeVerticesInSession(true) # force
 
     respond_to do |format|
-      if !validation.empty?
+      if !patternValidation.empty?
         format.html { redirect_to :action => "new", error: validation }
         format.json { render json: @user.errors, status: :unprocessable_entity }
       else
         @user.password = encrypt.encryptPattern(logicalPattern)
         if @user.save
-          storeVerticesInSession(true) # force
           format.html { redirect_to :action => "new", success: 'User was successfully created.' }
           format.json { render json: @user, status: :created, location: @user }
         else
+          createNewPattern()
           format.html { render action: "new" }
           format.json { render json: @user.errors, status: :unprocessable_entity }
         end
       end
-
-      storeVerticesInSession(true) # force
     end
   end
 end
