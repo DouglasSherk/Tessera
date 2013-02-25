@@ -3,19 +3,26 @@ class UsersController < ApplicationController
   include ActionView::Helpers::DateHelper
 
   MAX_LOGINS = 3
-  MAX_DOS = 10
+  MAX_DOS = 5
 
   def redirectIfDOSingOrTooManyLogins
     if session.has_key?(:dos)
-      render :dos
-      return true
+      timeSinceBlocked = Time.now - session[:dos]
+      if timeSinceBlocked >= 1.minutes
+        session.delete(:dos)
+        session.delete(:numPolygonGenerations)
+      else
+        @time = distance_of_time_in_words(1.minutes, Time.now - session[:dos])
+        render :dos
+        return true
+      end
     elsif session.has_key?(:blocked)
       timeSinceBlocked = Time.now - session[:blocked]
       if timeSinceBlocked >= 1.minutes
         session.delete(:blocked)
         session.delete(:failedLoginAttempts)
       else
-        @time = time_ago_in_words(session[:blocked])
+        @time = distance_of_time_in_words(1.minutes, Time.now - session[:blocked])
         render :blocked
         return true
       end
@@ -49,7 +56,7 @@ class UsersController < ApplicationController
     @security = session[:security]
   end
 
-
+  # Returns true if a DOS attempt has been detected.
   def storeVerticesInSession(force)
     session[:security] ||= 0
     auth = PolygonAuth::PolygonGenerator.new
@@ -57,15 +64,26 @@ class UsersController < ApplicationController
     if force
       session[:vertices] = auth.generatePolygon(session[:security])
       session[:firstVertex] = auth.generateFirstVertex(session[:vertices])
+
+      session[:numPolygonGenerations] ||= 0
+      session[:numPolygonGenerations] += 1
+
+      if session[:numPolygonGenerations] >= MAX_DOS
+        session[:dos] = Time.now
+        redirect_to :action => "index"
+        return true
+      end
     else
       session[:vertices] ||= auth.generatePolygon
       session[:firstVertex] ||= auth.generateFirstVertex(session[:vertices])
     end
+
+    return false
   end
 
   def generateNewPatternIfNewPage(page)
     if session[:lastPageWithPolygon] != page
-      storeVerticesInSession(true)
+      return if storeVerticesInSession(true)
       createNewPattern()
     end
 
@@ -171,13 +189,14 @@ class UsersController < ApplicationController
       end
     end
 
+    return if foundValidPattern and storeVerticesInSession(true) # force
+
     respond_to do |format|
       if !validation.empty?
         format.html { redirect_to :action => "login", :error => validation }
         format.json { head :no_content }
       elsif foundValidPattern
         session[:loggedin] = true
-        storeVerticesInSession(true) # force
         format.html { redirect_to :action => "index", :success => 'You are now logged in as "' + @user.name + '"' }
         format.json { head :no_content }
       else
@@ -193,9 +212,13 @@ class UsersController < ApplicationController
     return if redirectIfDOSingOrTooManyLogins
     return if redirectIfNotLoggedIn
 
-    reset_session
+    session.delete(:vertices)
+    session.delete(:firstVertex)
+    session.delete(:security)
+    session.delete(:loggedin)
+    session.delete(:lastPageWithPolygon)
 
-    storeVerticesInSession(true) # force
+    return if storeVerticesInSession(true) # force
 
     respond_to do |format|
       format.html { redirect_to :action => "index" }
@@ -210,7 +233,7 @@ class UsersController < ApplicationController
 
     session[:security] = params[:security].to_i
 
-    storeVerticesInSession(true) # force
+    return if storeVerticesInSession(true) # force
 
     respond_to do |format|
       format.html { redirect_to :action => session[:lastPageWithPolygon] || 'new' }
