@@ -80,7 +80,7 @@ module PolygonAuth
 
   class PolygonEncrypt
     def validatePattern(vertices, pattern, security)
-      return "Not enough vertices." if pattern.length < 3 || pattern.length > 6 + security * 18
+      return "You did not enough vertices. You must enter at least 3." if pattern.length < 3 || pattern.length > 6 + security * 18
 
       pattern.each do |vertex|
         return "Invalid pattern." if !vertex.is_a? Integer
