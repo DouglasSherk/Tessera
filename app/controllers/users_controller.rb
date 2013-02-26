@@ -3,7 +3,7 @@ class UsersController < ApplicationController
   include ActionView::Helpers::DateHelper
 
   MAX_LOGINS = 3
-  MAX_DOS = 5
+  MAX_DOS = 10
 
   def redirectIfDOSingOrTooManyLogins
     if session.has_key?(:dos)
