@@ -62,6 +62,19 @@ $.fn.eventMouseClick = (event) ->
 
   $(this).drawPolygon(vertex)
 
+$.fn.eventTouchStart = (event) ->
+  alert('ass')
+  vertex = findClosestVertexToMouse(event, this)
+  $(this).drawPolygon(vertex)
+
+$.fn.eventTouchMove = (event) ->
+  vertex = findClosestVertexToMouse(event, this)
+  return
+
+$.fn.eventTouchEnd = (event) ->
+  vertex = findClosestVertexToMouse(event, this)
+  return
+
 $.fn.calculateSecurityFactor = ->
   span = this.get(0)
 
@@ -83,6 +96,11 @@ $.fn.storeVerticesAndDraw = (vertices, firstVertex, security) ->
 
   this.mousemove(this.eventMouseMove)
   this.click(this.eventMouseClick)
+
+  [canvas, context] = getCanvas(this)
+  canvas.addEventListener('touchstart', this.eventTouchStart)
+  canvas.addEventListener('touchmove', this.eventTouchMove)
+  canvas.addEventListener('touchend', this.eventTouchEnd)
 
   this.drawPolygon(-1)
 
