@@ -20,7 +20,7 @@ class UsersController < ApplicationController
       timeSinceBlocked = Time.now - session[:blocked]
       if timeSinceBlocked >= 1.minutes
         session.delete(:blocked)
-        session.delete(:failedLoginAttempts)
+        session.delete(:failedLogins)
       else
         @time = distance_of_time_in_words(1.minutes, Time.now - session[:blocked])
         render :blocked
