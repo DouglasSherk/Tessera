@@ -6,7 +6,10 @@ $ = jQuery
 
 getCanvas = (container) ->
   canvas = null
-  $("canvas", container).each -> canvas = this
+  if $(container).is("canvas")
+    canvas = container
+  else
+    $("canvas", container).each -> canvas = this
   context = canvas.getContext('2d')
   return [canvas, context]
 
@@ -45,6 +48,17 @@ findClosestVertexToMouse = (event, target) ->
 
   return if !closest? then null else parseInt(closest)
 
+$.fn.toggleVertex = (vertex, force = false) ->
+  span = this.get(0)
+
+  selectedVertices = $.data(span, 'selectedVertices')
+  indexOfCurrentVertex = selectedVertices.indexOf(parseInt(vertex))
+
+  if indexOfCurrentVertex != -1 then selectedVertices.splice(indexOfCurrentVertex, 1)
+  else selectedVertices.push(parseInt(vertex))
+
+  $.data(span, 'selectedVertices', selectedVertices)
+
 $.fn.eventMouseMove = (event) ->
   vertex = findClosestVertexToMouse(event, this)
   $(this).drawPolygon(vertex)
@@ -52,27 +66,44 @@ $.fn.eventMouseMove = (event) ->
 $.fn.eventMouseClick = (event) ->
   vertex = findClosestVertexToMouse(event, this)
   if !vertex? then return
-  selectedVertices = $.data(this, 'selectedVertices')
-  indexOfCurrentVertex = selectedVertices.indexOf(parseInt(vertex))
 
-  if indexOfCurrentVertex != -1 then selectedVertices.splice(indexOfCurrentVertex, 1)
-  else selectedVertices.push(parseInt(vertex))
-
-  $.data(this, 'selectedVertices', selectedVertices)
-
+  $(this).toggleVertex(vertex)
   $(this).drawPolygon(vertex)
 
 $.fn.eventTouchStart = (event) ->
-  alert('ass')
-  vertex = findClosestVertexToMouse(event, this)
+  vertex = findClosestVertexToMouse(event.originalEvent.changedTouches[0], this)
+  if !vertex? then return
+
+  $.data(this, 'startVertex', vertex)
+
   $(this).drawPolygon(vertex)
 
 $.fn.eventTouchMove = (event) ->
-  vertex = findClosestVertexToMouse(event, this)
+  vertex = findClosestVertexToMouse(event.originalEvent.changedTouches[0], this)
+  if !vertex? then return
+
+  event.preventDefault()
+
+  startVertex = $.data(this, 'startVertex')
+  if startVertex != vertex
+    $.data(this, 'startVertex', null)
+
+  $(this).toggleVertex(vertex, true)
+  $(this).drawPolygon(vertex)
+
   return
 
 $.fn.eventTouchEnd = (event) ->
-  vertex = findClosestVertexToMouse(event, this)
+  vertex = findClosestVertexToMouse(event.originalEvent.changedTouches[0], this)
+  if !vertex? then return
+
+  event.preventDefault()
+
+  startVertex = $.data(this, 'startVertex')
+  if startVertex != null and startVertex != undefined
+    $(this).toggleVertex(startVertex)
+    $(this).drawPolygon(vertex)
+
   return
 
 $.fn.calculateSecurityFactor = ->
@@ -94,13 +125,13 @@ $.fn.storeVerticesAndDraw = (vertices, firstVertex, security) ->
   $.data(span, 'selectedVertices', [])
   $.data(span, 'security', security)
 
-  this.mousemove(this.eventMouseMove)
-  this.click(this.eventMouseClick)
+  #this.mousemove(this.eventMouseMove)
+  #this.click(this.eventMouseClick)
 
   [canvas, context] = getCanvas(this)
-  canvas.addEventListener('touchstart', this.eventTouchStart)
-  canvas.addEventListener('touchmove', this.eventTouchMove)
-  canvas.addEventListener('touchend', this.eventTouchEnd)
+  this.bind('touchstart', this.eventTouchStart)
+  this.bind('touchmove', this.eventTouchMove)
+  this.bind('touchend', this.eventTouchEnd)
 
   this.drawPolygon(-1)
 
