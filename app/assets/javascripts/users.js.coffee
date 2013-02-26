@@ -54,8 +54,8 @@ $.fn.toggleVertex = (vertex, force = false) ->
   selectedVertices = $.data(span, 'selectedVertices')
   indexOfCurrentVertex = selectedVertices.indexOf(parseInt(vertex))
 
-  if indexOfCurrentVertex != -1 then selectedVertices.splice(indexOfCurrentVertex, 1)
-  else selectedVertices.push(parseInt(vertex))
+  if indexOfCurrentVertex == -1 then selectedVertices.push(parseInt(vertex))
+  else if not force then selectedVertices.splice(indexOfCurrentVertex, 1)
 
   $.data(span, 'selectedVertices', selectedVertices)
 
