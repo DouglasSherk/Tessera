@@ -127,8 +127,8 @@ $.fn.storeVerticesAndDraw = (vertices, firstVertex, security) ->
   $.data(span, 'selectedVertices', [])
   $.data(span, 'security', security)
 
-  #this.mousemove(this.eventMouseMove)
-  #this.click(this.eventMouseClick)
+  this.mousemove(this.eventMouseMove)
+  this.click(this.eventMouseClick)
 
   [canvas, context] = getCanvas(this)
   this.bind('touchstart', this.eventTouchStart)
