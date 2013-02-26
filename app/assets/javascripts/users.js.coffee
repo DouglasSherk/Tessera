@@ -74,6 +74,8 @@ $.fn.eventTouchStart = (event) ->
   vertex = findClosestVertexToMouse(event.originalEvent.changedTouches[0], this)
   if !vertex? then return
 
+  event.preventDefault()
+
   $.data(this, 'startVertex', vertex)
 
   $(this).drawPolygon(vertex)
