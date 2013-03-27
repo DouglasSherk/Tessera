@@ -271,7 +271,7 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       if !patternValidation.empty?
-        format.html { redirect_to :action => "new", error: validation }
+        format.html { redirect_to :action => "new", error: patternValidation }
         format.json { render json: @user.errors, status: :unprocessable_entity }
       else
         @user.password = encrypt.encryptPattern(logicalPattern)
