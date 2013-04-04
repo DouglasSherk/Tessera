@@ -98,7 +98,7 @@ module PolygonAuth
       logicalFirstVertex = firstVertex - 1
       logicalPattern = pattern.map do |vertex|
         if vertex < logicalFirstVertex
-          vertex += vertices.length
+          vertex += vertices.length - 1
         end
         vertex -= logicalFirstVertex
       end

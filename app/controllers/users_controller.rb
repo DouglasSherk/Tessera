@@ -2,8 +2,8 @@ class UsersController < ApplicationController
   include PolygonAuth
   include ActionView::Helpers::DateHelper
 
-  MAX_LOGINS = 3
-  MAX_DOS = 10
+  MAX_LOGINS = 5
+  MAX_DOS = 15
 
   def redirectIfDOSingOrTooManyLogins
     if session.has_key?(:dos)
