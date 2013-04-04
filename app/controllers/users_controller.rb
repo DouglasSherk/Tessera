@@ -244,14 +244,14 @@ class UsersController < ApplicationController
   # GET /users/new
   # GET /users/new.json
   def new
-    #return if redirectIfDOSingOrTooManyLogins
-    #return if redirectIfLoggedIn
+    return if redirectIfDOSingOrTooManyLogins
+    return if redirectIfLoggedIn
 
     @user = User.new
 
-    createNewPattern()
+    #createNewPattern()
 
-    generateNewPatternIfNewPage('new')
+    #generateNewPatternIfNewPage('new')
 
     respond_to do |format|
       format.html # new.html.erb
@@ -281,7 +281,7 @@ class UsersController < ApplicationController
           format.json { render json: @user, status: :created, location: @user }
         else
           createNewPattern()
-          format.html { render action: "new" }
+          format.html { redirect_to :action => "new" }
           format.json { render json: @user.errors, status: :unprocessable_entity }
         end
       end
