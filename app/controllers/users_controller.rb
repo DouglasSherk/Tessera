@@ -244,8 +244,8 @@ class UsersController < ApplicationController
   # GET /users/new
   # GET /users/new.json
   def new
-    return if redirectIfDOSingOrTooManyLogins
-    return if redirectIfLoggedIn
+    #return if redirectIfDOSingOrTooManyLogins
+    #return if redirectIfLoggedIn
 
     @user = User.new
 
