@@ -83,11 +83,13 @@ class UsersController < ApplicationController
 
   def generateNewPatternIfNewPage(page)
     if session[:lastPageWithPolygon] != page
-      return if storeVerticesInSession(true)
+      return true if storeVerticesInSession(true)
       createNewPattern()
     end
 
     session[:lastPageWithPolygon] = page
+
+    return false
   end
 
   def convertPatternToLogicalForm
@@ -147,7 +149,7 @@ class UsersController < ApplicationController
 
     createNewPattern()
 
-    generateNewPatternIfNewPage('login')
+    return if generateNewPatternIfNewPage('login')
 
     respond_to do |format|
       format.html # login.html.erb
@@ -249,9 +251,9 @@ class UsersController < ApplicationController
 
     @user = User.new
 
-    #createNewPattern()
+    createNewPattern()
 
-    #generateNewPatternIfNewPage('new')
+    return if generateNewPatternIfNewPage('new')
 
     respond_to do |format|
       format.html # new.html.erb
